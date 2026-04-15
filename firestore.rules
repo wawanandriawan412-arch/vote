@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: votes
+    // Document ID: auto-generated
+    // Fields:
+    //   - value: number (required, 1-100) - The vote value
+    //   - userId: string (required) - The UID of the voter
+    //   - timestamp: timestamp (required) - When the vote was cast
+    //
+    // Document: stats/global
+    // Fields:
+    //   - totalScore: number (required) - Sum of all values
+    //   - voteCount: number (required) - Total number of votes
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidVote(data) {
+      return data.keys().hasAll(['value', 'userId', 'timestamp']) &&
+             data.keys().hasOnly(['value', 'userId', 'timestamp']) &&
+             data.value is number && data.value >= 1 && data.value <= 100 &&
+             data.userId == request.auth.uid &&
+             data.timestamp is timestamp;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+             (request.auth.token.email == "wawanandriawan412@gmail.com" && request.auth.token.email_verified == true);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /votes/{sessionUserId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && sessionUserId.endsWith(request.auth.uid) && isValidVote(request.resource.data);
+      allow delete: if true; // Allow anyone to reset for this prototype
+      allow update: if false;
+    }
+
+    match /stats/global {
+      allow read: if true;
+      allow write: if true; // Allow anyone to reset/setup for this prototype
+    }
+  }
+}

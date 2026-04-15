@@ -1,0 +1,51 @@
+{
+  "entities": {
+    "Vote": {
+      "title": "Vote",
+      "description": "An individual vote cast by a user.",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number",
+          "description": "The numeric value of the vote."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who cast the vote."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the vote was cast."
+        }
+      },
+      "required": ["value", "userId", "timestamp"]
+    },
+    "Stats": {
+      "title": "Stats",
+      "description": "Aggregated statistics for the voting system.",
+      "type": "object",
+      "properties": {
+        "totalScore": {
+          "type": "number",
+          "description": "The sum of all vote values."
+        },
+        "voteCount": {
+          "type": "number",
+          "description": "The total number of votes cast."
+        }
+      },
+      "required": ["totalScore", "voteCount"]
+    }
+  },
+  "firestore": {
+    "/votes/{sessionUserId}": {
+      "schema": "Vote",
+      "description": "Vote document keyed by {sessionId}_{userId} to allow repeated voting in different sessions."
+    },
+    "/stats/global": {
+      "schema": "Stats",
+      "description": "Global statistics including targetAudience and sessionId."
+    }
+  }
+}

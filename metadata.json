@@ -1,0 +1,6 @@
+{
+  "name": "Votely - Real-time Voting System",
+  "description": "A real-time voting application where users can contribute scores and see the live total result.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
